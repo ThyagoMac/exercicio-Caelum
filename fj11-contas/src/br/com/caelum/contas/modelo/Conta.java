@@ -1,11 +1,11 @@
 package br.com.caelum.contas.modelo;
 
-public class Conta {
+public class Conta implements Comparable<Conta> {
 	public static int contador;
 	private String titular;
 	private int numero;
 	private String agencia;
-	private double saldo;
+	protected double saldo;
 	private Data data;
 	private boolean estado;
 
@@ -73,7 +73,7 @@ public class Conta {
 			if (valor <= this.getSaldo()) {
 
 				System.out.println("---Operação de Saque---");
-				System.out.println("Valor antes da operação: "
+				System.out.println("Saldo antes da operação: "
 						+ this.getSaldo());
 				this.setSaldo(this.getSaldo() - valor);
 				System.out.println("Sacado: " + valor);
@@ -94,11 +94,16 @@ public class Conta {
 
 	public void deposita(double valor) {
 		if (!estado) {
-			System.out.println("---Operação de Deposito---\n"
-					+ "Valor antes da operação: " + this.getSaldo());
-			this.setSaldo(this.getSaldo() + valor);
-			System.out.println("Depositado: " + valor + "\nSaldo atual: "
-					+ this.getSaldo() + "\n----------");
+			if (valor < 0) {
+				throw new IllegalArgumentException(
+						"Voçê tentou depositar um valor negativo.");
+			} else {
+				System.out.println("---Operação de Deposito---\n"
+						+ "Saldo antes da operação: " + this.getSaldo());
+				this.setSaldo(this.getSaldo() + valor);
+				System.out.println("Depositado: " + valor + "\nSaldo atual: "
+						+ this.getSaldo() + "\n----------");
+			}
 		} else {
 			System.err
 					.println("---------\nERROR! Impossivel efetuar o deposito!! \nSua Conta está bloqueada. \nContate sua agencia ou ligue para 0800-666fromhell666\n---------");
@@ -135,5 +140,36 @@ public class Conta {
 				+ this.calculaRendimento() + "\n Conta Está Bloqueada? "
 				+ this.getEstado() + "\n-----------------------";
 		return dados;
+	}
+
+	public String getTipo() {
+		return "Conta";
+	}
+
+	public void transfere(double valor, Conta conta) {
+		this.saca(valor);
+		conta.deposita(valor);
+	}
+
+	@Override
+	public String toString() {
+		return "[titular=" + titular.toUpperCase() + ", numero=" + numero + ", agencia="
+				+ agencia.toUpperCase() + "]";
+	}
+
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
+
+		Conta outraConta = (Conta) obj;
+
+		return this.numero == outraConta.numero
+				&& this.agencia.equals(outraConta.agencia);
+	}
+
+	@Override
+	public int compareTo(Conta outraConta) {
+		return this.titular.compareTo(outraConta.titular);
 	}
 }
